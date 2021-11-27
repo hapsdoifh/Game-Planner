@@ -1,5 +1,11 @@
 from tkinter import *
 from tkinter import ttk
+import pandas as pd
+
+df = pd.read_excel('Book1.xlsx')
+
+print(df)
+
 root = Tk()
 root.geometry("200x200")
 myCanv = Canvas(root,height = 1080, width = 1920)
