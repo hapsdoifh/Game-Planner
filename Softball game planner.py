@@ -3,11 +3,11 @@ from tkinter import ttk
 import pandas as pd
 
 df = pd.read_excel('Book1.xlsx')
-
-print(df)
+df.head()
+print(df.shape)
 
 root = Tk()
-root.geometry("200x200")
+root.geometry("300x300")
 myCanv = Canvas(root,height = 1080, width = 1920)
 myCanv.pack()
 global myl
@@ -23,7 +23,8 @@ myCanv.move(myCircle,30,30)
 def CanvResize(event):
     xval = event.width
     yval = event.height
-    myl.configure(text = str(xval))
+   #myl.configure(text = str(xval))
+    myl.configure(text = df)
     mylb.configure(text = str(yval))
     myCanv.moveto(myCircle,xval/2-30,yval/2-30)
     
