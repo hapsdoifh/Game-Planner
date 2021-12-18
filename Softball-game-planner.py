@@ -3,11 +3,17 @@ from tkinter import ttk
 from tkinter import filedialog
 import pandas as pd
 import Game_Algorithm 
+from PIL import ImageTk, Image
 from Game_Algorithm import RETURNMATCHES
 
 
 root = Tk()
 root.geometry("300x300")
+
+back_img = ImageTk.PhotoImage(Image.open("RHA1.png"))
+
+back_label = Label(image=back_img)
+back_label.pack()
 
 myCanv = Canvas(root,height = 1000, width = 1000)
 myCanv.pack()   
@@ -15,6 +21,7 @@ mylb = Label(root,text="temp")
 mylb.place(x=10,y=40) 
 #myCircle = myCanv.create_oval(0,0,50,50,fill="red",width=5,outline="red") 
 
+    
 
 def CanvResize(event):
     xval = event.width
