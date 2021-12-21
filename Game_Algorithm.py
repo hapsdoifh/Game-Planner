@@ -14,7 +14,7 @@ import pandas as pd
 from pandas.io import excel
 import numpy
 
-def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo):
+def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
     #Stores the list of teams
     ListTeams = Input1
     #Stores the list of locations
@@ -60,7 +60,7 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo):
 
     #Generates WeekList
     from datetime import date
-    year = int(input("Year: "))
+    year = Year
     x=1
     def listToString(s):
         str1 = "" 
@@ -218,34 +218,33 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo):
     #Display for ease of use.
     ExcelList = []
     RowList = []
-    if input("Display Organized? (y)") == "y":
-        LocationCountPerTeam = []
-        B2BCount = 0
-        count = 0
-        for i in range (len(ListTeams)):
-            LocationCountPerTeam.append([0,0,0,0])
-        for index, match in enumerate(FGames):
-            if index%8 == 0: 
-                if str(ListWeeks[int(index/8)]) == "Extra Week 0":
-                    break
-                ExcelList.append(['','','','',''])
-                print(ListWeeks[int(index/8)])
-                print(TimeOne)
-                ExcelList.append([ListWeeks[int(index/8)],'','','',''])
-                ExcelList.append([TimeOne,'','','',''])
-            elif index%4 ==0:
-                print(TimeTwo)
-                ExcelList.append([TimeTwo,'','','',''])
-            if match not in ErrorList:
-                LocationCountPerTeam[TeamToNumber(match[0])][LocationToIndex(match[2])]+=1
-                LocationCountPerTeam[TeamToNumber(match[1])][LocationToIndex(match[2])]+=1
-                if len(match)>3 and match[3] == "Back To Back Game":
-                    B2BCount+=1
-                count+=1
-                print(match)
-                ExcelList.append([match[0],'vs',match[1], 'at', match[2]])
-            else:
-                print(end="")
+    LocationCountPerTeam = []
+    B2BCount = 0
+    count = 0
+    for i in range (len(ListTeams)):
+        LocationCountPerTeam.append([0,0,0,0])
+    for index, match in enumerate(FGames):
+        if index%8 == 0: 
+            if str(ListWeeks[int(index/8)]) == "Extra Week 0":
+                break
+            ExcelList.append(['','','','',''])
+            print(ListWeeks[int(index/8)])
+            print(TimeOne)
+            ExcelList.append([ListWeeks[int(index/8)],'','','',''])
+            ExcelList.append([TimeOne,'','','',''])
+        elif index%4 ==0:
+            print(TimeTwo)
+            ExcelList.append([TimeTwo,'','','',''])
+        if match not in ErrorList:
+            LocationCountPerTeam[TeamToNumber(match[0])][LocationToIndex(match[2])]+=1
+            LocationCountPerTeam[TeamToNumber(match[1])][LocationToIndex(match[2])]+=1
+            if len(match)>3 and match[3] == "Back To Back Game":
+                B2BCount+=1
+            count+=1
+            print(match)
+            ExcelList.append([match[0],'vs',match[1], 'at', match[2]])
+        else:
+            print(end="")
     df = pd.DataFrame(data=ExcelList)
     df.to_excel("OUTPUT.xlsx",sheet_name= "test")
 
