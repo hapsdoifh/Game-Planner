@@ -14,6 +14,15 @@ import pandas as pd
 from pandas.io import excel
 import numpy
 
+class ReturnParam:
+    def __init__(self, Success, ErrList, MagError, CscGame, rating, FERROR):
+        self.success = Success
+        self.NotPlayedGames = ErrList
+        self.ConSecGame = CscGame
+        self.MagError = MagError
+        self.rating = rating
+        self.FatalError = FERROR
+
 def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
     #Stores the list of teams
     ListTeams = Input1
@@ -248,34 +257,35 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
     df = pd.DataFrame(data=ExcelList)
     df.to_excel("OUTPUT.xlsx",sheet_name= "test")
 
-
+    
     print(f'Games That Could Not Be Played: {ErrorList}')
-    if input("Extra stats?(y):  ") == "y":
-        differential = -1
-        for indx,locationcount in enumerate(LocationCountPerTeam):
-            locationcount.sort()
-            if (locationcount[-1] - locationcount[0]) > differential:
-                differential = (locationcount[-1] - locationcount[0])
-                indxstore = indx
-        print(f"Maximum location error: +-{differential} in team {ListTeams[indxstore]}")
-        if len(ErrorList)>0:
-            print(f"Non-ideal team vs team spread detected. Magnitude of error: {len(ErrorList)}")
-        else:
-            print("Ideal Team vs Team spread.")
-        if B2BCount == 0:
-            print(f"No Teams Play Consecutively.")
-        else:
-            print(f"There has been {B2BCount} instances of Consecutive games")
-        debuglist = []
-        for index,match in enumerate(FGames):
-            if len(debuglist) ==4:
-                debuglist = []
-            if match[2] in debuglist:
-                print("FATAL ERROR DETECTED! REPORT TO RHA 'Simultanious Location Access Detected!' ")
-                exit()
-            else:
-                debuglist.append(match[2])
-        debuglist = []
+    differential = -1
+    for indx,locationcount in enumerate(LocationCountPerTeam):
+        locationcount.sort()
+        if (locationcount[-1] - locationcount[0]) > differential:
+            differential = (locationcount[-1] - locationcount[0])
+            indxstore = indx
+    print(f"Maximum location error: +-{differential} in team {ListTeams[indxstore]}")
+    if len(ErrorList)>0:
+        print(f"Non-ideal team vs team spread detected. Magnitude of error: {len(ErrorList)}")
+    else:
+        print("Ideal Team vs Team spread.")
+    if B2BCount == 0:
+        print(f"No Teams Play Consecutively.")
+    else:
+        print(f"There has been {B2BCount} instances of Consecutive games")
+    debuglist = []
+    DebugInfo = ReturnParam(1,ErrorList, len(ErrorList),B2BCount,100-differential*1.5-len(ErrorList)-B2BCount*3,0)
 
-        print(f"Overall error/rating of this set is {100-differential*1.5-len(ErrorList)-B2BCount*3} points out of 100.")
-    #Inputs/Function Call
+    for index,match in enumerate(FGames):
+        if len(debuglist) ==4:
+            debuglist = []
+        if match[2] in debuglist:
+            print("FATAL ERROR DETECTED! REPORT TO RHA 'Simultanious Location Access Detected!' ")
+            DebugInfo.success = 0
+            DebugInfo.FatalError = 1
+        else:
+            debuglist.append(match[2])
+    debuglist = []
+    return DebugInfo
+#Inputs/Function Call
