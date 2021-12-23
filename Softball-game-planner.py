@@ -43,13 +43,11 @@ def GetFile():
     try:
         gameYear = int(year_text.get('1.0',END))
     except ValueError:
-        print("NOO")
         year_text.delete(1.0,END)
         year_text.insert(tkinter.END,"ENTER YEAR FIRST")
         return 0
     filename = filedialog.askopenfilename(filetypes=(("xlsx file","*.xlsx"),("xlsx file","*.xlsx")))
     myfile = pd.read_excel(filename)
-    print(myfile)
     TimeOne = "3 pm"
     TimeTwo = "7 pm"
     mytest = pd.read_excel("Book1.xlsx")
@@ -66,22 +64,20 @@ def GetFile():
                     lList.append(str(other[y][x]))
             else:
                 break
-    print(tList)
-    print(lList)
     global eval
     eval = RETURNMATCHES(tList,lList,TimeOne,TimeTwo,gameYear)
     showDebugButton()
 
 def showDebugButton():
-    DebugInfoB.place(x=200,y=40)
+    DebugInfoB.place(x=200,y=20)
 
 def showDebugInfo():
     top = Toplevel(root)
     top.geometry("300x140")
     top.title("Debug Info")
     top.configure(background="#1C327D")
-    outputstr = "Is sucessful: "+ str(eval.success)+"\n"+ "games not played:" + str(eval.NotPlayedGames)+"\n" + "Consecutive Games:" + str(eval.ConSecGame)+"\n"
-    outputstr += "Magnitude of Error"+str(eval.MagError)+"\n"+ "Overall Rating" +str(eval.rating)+"\n"+ "Fatal Error:"+str(eval.FatalError)
+    outputstr = "Is sucessful: "+ str(eval.success)+"\n"+ "games not played: " + str(eval.NotPlayedGames)+"\n" + "Consecutive Games: " + str(eval.ConSecGame)+"\n"
+    outputstr += "Magnitude of Error: "+str(eval.MagError)+"\n"+ "Overall Rating: " +str(eval.rating)+"\n"+ "Fatal Error: "+str(eval.FatalError)
     debugLabel = Label(top,text = outputstr, anchor='w', wraplength=280, bg="#1C327D", fg="white")
     debugLabel.pack(side = TOP)
     DebugInfoB.place_forget()
