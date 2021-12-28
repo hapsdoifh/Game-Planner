@@ -86,7 +86,8 @@ def showDebugInfo():
 global DebugInfoB
 DebugInfoB = Button(root,text = "debug Info", command = showDebugInfo)
 
-FileButton = Button(root,text="Get File",font=("Helvetica",10),command=GetFile, bg="#D3D3D3",padx = 30, pady = 10)
+FileBImage = PhotoImage(file="FileButton.png")
+FileButton = Button(root,image=FileBImage,command=GetFile,borderwidth=0)
 #myCanv.bind("<Configure>",CanvResize)
 FileButton.place(x=10,y=10)
 ExitButton = Button(root,text = "EXIT", command = root.quit,bg="#D3D3D3",padx = 20, pady = 5)
