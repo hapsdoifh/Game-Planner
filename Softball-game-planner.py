@@ -82,12 +82,15 @@ def showDebugInfo():
     debugLabel.pack(side = TOP)
     DebugInfoB.place_forget()
 
+#def ButtonClick(event):
+    
 
 global DebugInfoB
 DebugInfoB = Button(root,text = "debug Info", command = showDebugInfo)
 
 FileBImage = PhotoImage(file="FileButton.png")
-FileButton = Button(root,image=FileBImage,command=GetFile,borderwidth=0)
+FileButton = Button(root,image=FileBImage,command=GetFile,borderwidth=0,bd = 0, background="black", activebackground="black")
+
 #myCanv.bind("<Configure>",CanvResize)
 FileButton.place(x=10,y=10)
 ExitButton = Button(root,text = "EXIT", command = root.quit,bg="#D3D3D3",padx = 20, pady = 5)

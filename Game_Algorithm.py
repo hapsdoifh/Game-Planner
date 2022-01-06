@@ -5,9 +5,9 @@
 !!! Unique location
 !! Courts Taken
 No thought is given to diverse playing time
-'''
-from tkinter import *
-from tkinter import ttk
+    '''
+from copy import deepcopy
+import time
 from typing import DefaultDict
 import numpy
 import pandas as pd
@@ -23,7 +23,8 @@ class ReturnParam:
         self.rating = rating
         self.FatalError = FERROR
 
-def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
+
+def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo, GameYear):
     #Stores the list of teams
     ListTeams = Input1
     #Stores the list of locations
@@ -43,13 +44,11 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
         for index,item in enumerate(ListTeams):
             if item == team:
                 return index
-    def LocationToIndex(location):
-        for index,item in enumerate(ListLocations):
-            if item == location:
-                return index
     #Generates LocationCountPerTeam and sets GamesPlayedPerTeam to 0
+    LocationCountPerTeamCopy = []
     for o in range(len(ListTeams)):
-        LocationCountPerTeam.append([0,0,0,0])
+        LocationCountPerTeam.append([1,1,1,1])
+        LocationCountPerTeamCopy.append([1,1,1,1])
         GamesPlayedPerTeam.append(0)
     #Using an algorithm, generates all possible games. Works by appending a team versus the teams after it and none before it.
     '''
@@ -62,21 +61,26 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
     6vs7,8
     7vs8
     '''
+    def LocationToIndex(location):
+        for index,item in enumerate(ListLocations):
+            if item == location:
+                return index
     for index,x in enumerate(ListTeams):
         for ind, team in enumerate(ListTeams):
             if not(ind<=index):
                 PossibleGames.append([ListTeams[index],team])
-
     #Generates WeekList
     from datetime import date
-    year = Year
+    year = GameYear
+    #("Calculating..")
+    start = time.time()
     x=1
     def listToString(s):
         str1 = "" 
         for ele in s:
             str1 += (f"{ele} ")
         return str1
-
+    
     for k in range(31):
         dateasy = str(date(year,5,x).ctime())
         listm = dateasy.split(" ")
@@ -86,7 +90,7 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
             else:
                 ListWeeks.append(listToString(str((date(year,5,x).ctime())).split(" ")[1:3]))
         x+=1
-
+    
     x=1
     for k in range(30):
         dateasy = str(date(year,6,x).ctime())
@@ -97,7 +101,7 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
             else:
                 ListWeeks.append(listToString(str((date(year,6,x).ctime())).split(" ")[1:3]))
         x+=1
-
+    
     x=1
     for aa in range(1000):
         ListWeeks.append(f"Extra Week {aa}")
@@ -122,25 +126,92 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
         GamesPlayedPerTeam[TeamToNumber(BestMatch[0])]+=1
         GamesPlayedPerTeam[TeamToNumber(BestMatch[1])]+=1
         PossibleGames.remove(BestMatch)
+    
     #Gives locations per team.Sorts by least played per pair, and does not allow duplicate locations for groups of four.
-    Taken = []
-    for match in FGames:
-        tiniest = 1000
-        
-        for index,location in enumerate(ListLocations):
-            if LocationCountPerTeam[TeamToNumber(match[0])][index] + LocationCountPerTeam[TeamToNumber(match[1])][index] < tiniest and location not in Taken:
-                tiniest = LocationCountPerTeam[TeamToNumber(match[0])][index] + LocationCountPerTeam[TeamToNumber(match[1])][index]
-                locationbest = location
-                inndex = index
-        LocationCountPerTeam[TeamToNumber(match[0])][inndex] +=1
-        LocationCountPerTeam[TeamToNumber(match[1])][inndex] +=1
-        match.append(locationbest)
-        Taken.append(locationbest)
-        if len(Taken) == 4:
-            Taken = []
-    Taken = []
-    #Removes any potential error/duplicate games that are inevitable if wanting ideal playing conditions
-    #print(FGames)
+    PossibleLocationIndicies = [
+        [0,1,2,3],
+        [0,1,3,2],
+        [0,2,1,3],
+        [0,2,3,1],
+        [0,3,1,2],
+        [0,3,2,1],
+        [1,2,3,0],
+        [1,2,0,3],
+        [1,0,2,3],
+        [1,0,3,2],
+        [1,3,2,0],
+        [1,3,0,2],
+        [2,0,1,3],
+        [2,0,3,1],
+        [2,1,0,3],
+        [2,1,3,0],
+        [2,3,0,1],
+        [2,3,1,0],
+        [3,0,1,2],
+        [3,0,2,1],
+        [3,1,0,2],
+        [3,1,2,0],
+        [3,2,0,1],
+        [3,2,1,0]
+    ]
+    scorelist = []
+    def FindScore(LocationCount,group,Combination):
+        score = 0
+        counter = 1
+        for ind,match in enumerate(group):
+            counter = 1
+            for k in range(4):
+                if k!=Combination[ind]:
+                    
+                    counter*= LocationCount[TeamToNumber(match[0])][k]
+                else:
+                    
+                    counter*= (LocationCount[TeamToNumber(match[0])][k]+1)
+            score+=counter
+            for l in range(4):
+                if l!=Combination[ind]:
+                    
+                    counter*= LocationCount[TeamToNumber(match[1])][l]
+                else:
+                    
+                    counter*= (LocationCount[TeamToNumber(match[1])][l]+1)
+            score+=counter
+        return score
+    indexbest = 0
+
+    try:
+        for index,match in enumerate(FGames):
+            scorelist = []
+            if index%4 == 0 :
+
+                scorelist = []
+                for combination in PossibleLocationIndicies:
+                    scorelist.append(FindScore(LocationCountPerTeam, [FGames[index],FGames[index+1],FGames[index+2],FGames[index+3]],combination))
+                largestt = -100
+
+                for indd,score in enumerate(scorelist):
+                    if score>largestt:
+                        largestt = score
+                        indexbest = deepcopy(indd)
+             
+                for lp in range(4):
+                    LocationCountPerTeam[TeamToNumber(FGames[index+lp][0])][PossibleLocationIndicies[indexbest][lp]]+=1
+                    LocationCountPerTeam[TeamToNumber(FGames[index+lp][1])][PossibleLocationIndicies[indexbest][lp]]+=1
+                    
+                for ii in range(4):
+                    FGames[index+ii].append(ListLocations[PossibleLocationIndicies[indexbest][ii]])
+            indtrack = deepcopy(index)
+    except IndexError:
+        Taken = []
+        smallest = 100000000
+        for i in range(len(FGames)-indtrack):
+            smallest = 100000000
+            for inddd in range(4):
+                if LocationCountPerTeam[TeamToNumber(FGames[-1-i][0])][inddd] + LocationCountPerTeam[TeamToNumber(FGames[-1-i][1])][inddd] <smallest and (ListLocations[inddd] not in Taken):
+                    smallest = LocationCountPerTeam[TeamToNumber(FGames[-1-i][0])][inddd] + LocationCountPerTeam[TeamToNumber(FGames[-1-i][1])][inddd]
+                    indexstore = inddd
+            Taken.append(ListLocations[indexstore])
+            FGames[-1-i].append(ListLocations[indexstore])
     PlayedOnce = []
     Contrastlist = []
     B2BCount = 0
@@ -177,6 +248,7 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
     except IndexError:
         pass
     InstanceOfB2B = 0
+    Taken = []
     #Used to avoid potential index errors as a result of consecutive games, or in the rare instance of back to back consecutive games
     for loop in range(3):
         Contrastlist.append(['',''])
@@ -214,7 +286,6 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
                        
     except IndexError:
         pass
-
     ErrorList = []
     Closed = []
     for index,match in enumerate(FGames):
@@ -225,6 +296,11 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
         Closed.append(match[0])
         Closed.append(match[1])
     #Display for ease of use.
+    #("Finished Calculating!")
+    end = time.time()
+    #("Time Elapsed: ", end = '')
+    #(round(end - start,5),"seconds")
+
     ExcelList = []
     RowList = []
     LocationCountPerTeam = []
@@ -236,9 +312,9 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
         if index%8 == 0: 
             if str(ListWeeks[int(index/8)]) == "Extra Week 0":
                 break
-            ExcelList.append(['','','','',''])
             #print(ListWeeks[int(index/8)])
             #print(TimeOne)
+            ExcelList.append(['','','','',''])
             ExcelList.append([ListWeeks[int(index/8)],'','','',''])
             ExcelList.append([TimeOne,'','','',''])
         elif index%4 ==0:
@@ -258,6 +334,33 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
     df = pd.DataFrame(data=ExcelList)
     df.to_excel("OUTPUT.xlsx",sheet_name= "test")
 
+    ExcelTeamGameList = []
+    teamSearch = ''
+    GameTime = ''
+    GameDay = ''
+    for teamSearch in ListTeams:
+        cont=0
+        for index, SearchGames in enumerate(ExcelList):
+            if(cont>0):
+                cont-=1
+                continue
+            if SearchGames[1] == "":
+                if SearchGames[0] == '':
+                    GameDay = ExcelList[index+1][0]
+                    GameTime = ExcelList[index+2][0]
+                    cont = 2
+                else:
+                    GameTime = ExcelList[index][0]
+            elif SearchGames[0]==teamSearch:
+                ExcelTeamGameList.append([teamSearch,'vs',SearchGames[2],'at', SearchGames[4],'on',GameDay, 'at', GameTime])
+            elif SearchGames[2]==teamSearch:
+                ExcelTeamGameList.append([teamSearch,'vs',SearchGames[0],'at', SearchGames[4],'on',GameDay, 'at', GameTime])
+        ExcelTeamGameList.append(['','','','','','','','',''])
+    df = pd.DataFrame(data=ExcelTeamGameList)
+    df.to_excel("GamesForTeams.xlsx",sheet_name="TeamGames")    
+     
+    
+            
     
     #print(f'Games That Could Not Be Played: {ErrorList}')
     differential = -1
@@ -293,4 +396,5 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo,Year):
             debuglist.append(match[2])
     debuglist = []
     return DebugInfo
+        #(f"Overall error/rating of this set is {100-differential*1.5-len(ErrorList)-B2BCount*3} points out of 100.")
 #Inputs/Function Call
