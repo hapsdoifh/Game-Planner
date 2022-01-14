@@ -2,13 +2,12 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 import tkinter
+from typing import Sized
 import pandas as pd
 import Game_Algorithm 
 from PIL import ImageTk, Image
 from Game_Algorithm import RETURNMATCHES
 from Game_Algorithm import ReturnParam
-
-
 
 root = Tk()
 root.geometry("300x300")
@@ -17,19 +16,22 @@ root.minsize(width=300, height=200)
 myCanv = Canvas(root,height = 600, width = 300)
 myCanv.place(x=0,y=0)   
 
+
+
 class pos:
     x = 150;
     y = 150;
 
-back_img = ImageTk.PhotoImage(Image.open("RHA1.png"))
+back_img = ImageTk.PhotoImage(Image.open(".\ProgramFiles\RHA1.png"))
 back_label = Label(image=back_img)
 back_label.place(x=0,y=0,relheight=1,relwidth=1)
+root.configure(background="blue")
 
 instruction = Label(root, text = "Enter the current year:",background="black", foreground="white")
 instruction.place(x=10,y=60)
 
 global year_text
-year_text = Text(root, width=12,height=1)
+year_text = Text(root, width=12,height=1, bd=0)
 year_text.place(x=10,y=80)
 year_text.insert(tkinter.END, "")
 
@@ -50,8 +52,8 @@ def GetFile():
     myfile = pd.read_excel(filename)
     TimeOne = "3 pm"
     TimeTwo = "7 pm"
-    mytest = pd.read_excel("Book1.xlsx")
-    other = mytest.to_numpy()
+    #mytest = pd.read_excel("Book1.xlsx")
+    other = myfile.to_numpy()
     lList=[]
     tList=[]
 
@@ -82,17 +84,32 @@ def showDebugInfo():
     debugLabel.pack(side = TOP)
     DebugInfoB.place_forget()
 
-#def ButtonClick(event):
-    
+# def Resize(event):
+#     print(event.height)
+#     print(event.width)
+#     print()
+# root.bind("<Configure>",Resize)
 
 global DebugInfoB
+img= (Image.open(".\ProgramFiles\FileButton.png"))
+img = img.resize((83,50), Image.ANTIALIAS)
+FileBImage = ImageTk.PhotoImage(img)
 DebugInfoB = Button(root,text = "debug Info", command = showDebugInfo)
 
-FileBImage = PhotoImage(file="FileButton.png")
+img= (Image.open(".\ProgramFiles\FileButton.png"))
+img = img.resize((83,50), Image.ANTIALIAS)
+FileBImage = ImageTk.PhotoImage(img)
+#FileBImage = PhotoImage(file=".\ProgramFiles\FileButton.png")
 FileButton = Button(root,image=FileBImage,command=GetFile,borderwidth=0,bd = 0, background="black", activebackground="black")
+#FileButton.place(x=10,y=10)
+FileButton.pack(side="top")
 
-#myCanv.bind("<Configure>",CanvResize)
-FileButton.place(x=10,y=10)
-ExitButton = Button(root,text = "EXIT", command = root.quit,bg="#D3D3D3",padx = 20, pady = 5)
-ExitButton.pack(side=BOTTOM)
+img= (Image.open(".\ProgramFiles\Exit.png"))
+img = img.resize((83,50), Image.ANTIALIAS)
+ExitImg =ImageTk.PhotoImage(img)
+ExitButton = Button(root,text = "EXIT", command = root.quit,background="black",borderwidth=0,bd = 0,image=ExitImg, activebackground="black")
+ExitButton.pack(side="bottom")
+
+
+
 root.mainloop()

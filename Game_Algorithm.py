@@ -332,7 +332,7 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo, GameYear):
             pass
             #print(end="")
     df = pd.DataFrame(data=ExcelList)
-    df.to_excel("OUTPUT.xlsx",sheet_name= "test")
+    df.to_excel(".\Output-Folder\GameSchedule.xlsx",sheet_name= "Games")
 
     ExcelTeamGameList = []
     teamSearch = ''
@@ -357,18 +357,23 @@ def RETURNMATCHES(Input1, Input2,TimeOne,TimeTwo, GameYear):
                 ExcelTeamGameList.append([teamSearch,'vs',SearchGames[0],'at', SearchGames[4],'on',GameDay, 'at', GameTime])
         ExcelTeamGameList.append(['','','','','','','','',''])
     df = pd.DataFrame(data=ExcelTeamGameList)
-    df.to_excel("GamesForTeams.xlsx",sheet_name="TeamGames")    
+    df.to_excel(".\Output-Folder\Games-For-Each-Team.xlsx",sheet_name="TeamGames")    
      
     
             
-    
+    TeamLocations = []
+    TeamLocations.append(['Team Name',ListLocations[0],ListLocations[1],ListLocations[2],ListLocations[3]])
     #print(f'Games That Could Not Be Played: {ErrorList}')
     differential = -1
     for indx,locationcount in enumerate(LocationCountPerTeam):
+        TeamLocations.append([ListTeams[indx], locationcount[0],locationcount[1],locationcount[2],locationcount[3]])
         locationcount.sort()
         if (locationcount[-1] - locationcount[0]) > differential:
             differential = (locationcount[-1] - locationcount[0])
             indxstore = indx
+     
+    df = pd.DataFrame(data=TeamLocations)
+    df.to_excel(".\Output-Folder\Team-Location-count.xlsx",sheet_name="Locations-per-team")           
     #print(f"Maximum location error: +-{differential} in team {ListTeams[indxstore]}")
     if len(ErrorList)>0:
         pass
