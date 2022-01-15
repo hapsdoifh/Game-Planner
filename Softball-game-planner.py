@@ -1,7 +1,10 @@
+from email.mime import image
+from multiprocessing.spawn import WINEXE
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 import tkinter
+from turtle import back, width
 from typing import Sized
 import pandas as pd
 import Game_Algorithm 
@@ -10,36 +13,49 @@ from Game_Algorithm import RETURNMATCHES
 from Game_Algorithm import ReturnParam
 
 root = Tk()
-root.geometry("300x300")
-root.maxsize(width=700,height=400)
-root.minsize(width=300, height=200)
-myCanv = Canvas(root,height = 600, width = 300)
-myCanv.place(x=0,y=0)   
-
+root.geometry("500x300")
+# root.maxsize(width=700,height=400)
+# root.minsize(width=300, height=200)
+# myCanv = Canvas(root,height = root.winfo_screenwidth(), width = root.winfo_screenheight())
+# myCanv.place(x=0,y=0)   
 
 
 class pos:
     x = 150;
     y = 150;
 
-back_img = ImageTk.PhotoImage(Image.open(".\ProgramFiles\RHA1.png"))
-back_label = Label(image=back_img)
-back_label.place(x=0,y=0,relheight=1,relwidth=1)
-root.configure(background="blue")
 
-instruction = Label(root, text = "Enter the current year:",background="black", foreground="white")
-instruction.place(x=10,y=60)
+
+#myCircle = myCanv.create_oval(0,0,50,50,fill="red",width=5,outline="red") 
+
+bkimg= Image.open(".\ProgramFiles\RHA1.png")
+bkimgcpy = bkimg.copy()
+bkimg = bkimg.resize((root.winfo_width(),root.winfo_height()), Image.ANTIALIAS)
+back_img = ImageTk.PhotoImage(bkimg)
+#back_img = ImageTk.PhotoImage(Image.open(".\ProgramFiles\RHA1.png"))
+back_label = tkinter.Label(root, image=back_img)
+back_label.pack(fill=BOTH, expand=YES)
 
 global year_text
 year_text = Text(root, width=12,height=1, bd=0)
 year_text.place(x=10,y=80)
 year_text.insert(tkinter.END, "")
+instruction = Label(root, text = "Enter the current year:",background="black", foreground="white")
+instruction.place(x=200,y=80)
 
-#myCircle = myCanv.create_oval(0,0,50,50,fill="red",width=5,outline="red") 
 
-
-#def CanvResize(event):
-    #myCanv.moveto(myCircle,xval/2-30,yval/2-30)
+def Resize(event): 
+    winx=root.winfo_width()
+    winy=root.winfo_height()
+    newimg = bkimgcpy.resize((root.winfo_width(),root.winfo_height()))
+    photoimg = ImageTk.PhotoImage(newimg)
+    back_label.configure(image=photoimg)
+    back_label.image = photoimg
+    ExitButton.place(x=winx/2-30, y=winy-60)
+    FileButton.place(x=winx/2-30, y=30)
+    year_text.place(x=winx/2-35, y=100)
+    instruction.place(x=winx/2-50,y=80)
+back_label.bind("<Configure>",Resize)
 
 def GetFile():
     try:
@@ -102,13 +118,13 @@ FileBImage = ImageTk.PhotoImage(img)
 #FileBImage = PhotoImage(file=".\ProgramFiles\FileButton.png")
 FileButton = Button(root,image=FileBImage,command=GetFile,borderwidth=0,bd = 0, background="black", activebackground="black")
 #FileButton.place(x=10,y=10)
-FileButton.pack(side="top")
+FileButton.place(x=200,y=20)
 
 img= (Image.open(".\ProgramFiles\Exit.png"))
 img = img.resize((83,50), Image.ANTIALIAS)
 ExitImg =ImageTk.PhotoImage(img)
 ExitButton = Button(root,text = "EXIT", command = root.quit,background="black",borderwidth=0,bd = 0,image=ExitImg, activebackground="black")
-ExitButton.pack(side="bottom")
+ExitButton.place(x=200,y=300)
 
 
 
