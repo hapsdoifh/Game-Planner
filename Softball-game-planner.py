@@ -1,15 +1,14 @@
-from email.mime import image
-from multiprocessing.spawn import WINEXE
+ 
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 import tkinter
-from turtle import back, width
+from turtle import back, right, width
 from typing import Sized
 import pandas as pd
 import Game_Algorithm 
 from PIL import ImageTk, Image
-from Game_Algorithm import RETURNMATCHES
+from Game_Algorithm import IniFindMatches
 from Game_Algorithm import ReturnParam
 
 root = Tk()
@@ -45,6 +44,8 @@ instruction.place(x=200,y=80)
 
 
 def Resize(event): 
+    global winx
+    global winy
     winx=root.winfo_width()
     winy=root.winfo_height()
     newimg = bkimgcpy.resize((root.winfo_width(),root.winfo_height()))
@@ -66,28 +67,27 @@ def GetFile():
         return 0
     filename = filedialog.askopenfilename(filetypes=(("xlsx file","*.xlsx"),("xlsx file","*.xlsx")))
     myfile = pd.read_excel(filename)
-    TimeOne = "3 pm"
-    TimeTwo = "7 pm"
-    #mytest = pd.read_excel("Book1.xlsx")
-    other = myfile.to_numpy()
+    ConvertedFile = myfile.to_numpy()
     lList=[]
     tList=[]
-
-    for x in range(2):
-        for y in range(len(other)):
-            if not pd.isnull(other[y][x]):
+    timeSlotList = []
+    for x in range(3):
+        for y in range(len(ConvertedFile)):
+            if not pd.isnull(ConvertedFile[y][x]):
                 if x == 0:
-                    tList.append(str(other[y][x]))
+                    tList.append(str(ConvertedFile[y][x]))
+                elif x==1:
+                    lList.append(str(ConvertedFile[y][x]))
                 else:
-                    lList.append(str(other[y][x]))
+                    timeSlotList.append(str(ConvertedFile[y][x]))
             else:
                 break
     global eval
-    eval = RETURNMATCHES(tList,lList,TimeOne,TimeTwo,gameYear)
+    eval = IniFindMatches(tList,lList,timeSlotList[0],timeSlotList[1],gameYear)
     showDebugButton()
 
 def showDebugButton():
-    DebugInfoB.place(x=200,y=20)
+    DebugInfoB.place(x=winx/2-30,y=180)
 
 def showDebugInfo():
     top = Toplevel(root)
@@ -95,9 +95,9 @@ def showDebugInfo():
     top.title("Debug Info")
     top.configure(background="#1C327D")
     outputstr = "Is sucessful: "+ str(eval.success)+"\n"+ "games not played: " + str(eval.NotPlayedGames)+"\n" + "Consecutive Games: " + str(eval.ConSecGame)+"\n"
-    outputstr += "Magnitude of Error: "+str(eval.MagError)+"\n"+ "Overall Rating: " +str(eval.rating)+"\n"+ "Fatal Error: "+str(eval.FatalError)
+    outputstr += "Magnitude of Error: "+str(eval.MagError)+"\n"+ "Overall Rating: " +str(eval.rating)+"\n"+ "Fatal Error: "+str(eval.FatalError)+"\nDuplicated games: " + str(eval.Dgames)
     debugLabel = Label(top,text = outputstr, anchor='w', wraplength=280, bg="#1C327D", fg="white")
-    debugLabel.pack(side = TOP)
+    debugLabel.pack(side=TOP)
     DebugInfoB.place_forget()
 
 # def Resize(event):
@@ -107,17 +107,19 @@ def showDebugInfo():
 # root.bind("<Configure>",Resize)
 
 global DebugInfoB
-img= (Image.open(".\ProgramFiles\FileButton.png"))
+img= (Image.open(".\ProgramFiles\DebugInfo.png"))
 img = img.resize((83,50), Image.ANTIALIAS)
-FileBImage = ImageTk.PhotoImage(img)
-DebugInfoB = Button(root,text = "debug Info", command = showDebugInfo)
+dbgInfo = ImageTk.PhotoImage(img)
+DebugInfoB = Button(root,text = "debug Info",image=dbgInfo, command = showDebugInfo,background="black", activebackground="black", bd=0)
+
+img= (Image.open(".\ProgramFiles\Exit.png"))
+img = img.resize((83,50), Image.ANTIALIAS)
+ExitImg =ImageTk.PhotoImage(img)
 
 img= (Image.open(".\ProgramFiles\FileButton.png"))
 img = img.resize((83,50), Image.ANTIALIAS)
 FileBImage = ImageTk.PhotoImage(img)
-#FileBImage = PhotoImage(file=".\ProgramFiles\FileButton.png")
 FileButton = Button(root,image=FileBImage,command=GetFile,borderwidth=0,bd = 0, background="black", activebackground="black")
-#FileButton.place(x=10,y=10)
 FileButton.place(x=200,y=20)
 
 img= (Image.open(".\ProgramFiles\Exit.png"))
