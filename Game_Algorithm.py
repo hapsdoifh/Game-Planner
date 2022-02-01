@@ -25,131 +25,46 @@ class ReturnParam:
         self.FatalError = FERROR
 
 from copy import deepcopy
+from copy import deepcopy
 def IniFindMatches(i1,i2,TimeOne, TimeTwo,gameYear):
+    '''
+    Lists of Lists
+    '''
+    #List of teams
     ListTeams = i1
+    #List of locations
     ListLocations = i2
-    
+    #List that stores every possible game combination
     PossibleGames = []
+    #List that holds the dates of the wednesdays
     ListWeeks = []
+    #List for the final tweaked games with locations
     FGames = []
+    #List that holds the previous games to counteract double headers
     PrevGames = []
+    #List that stores the games played per team to optimize playing priority
     GamesPlayedPerTeam = []
-    LocationCountPerTeam=[]
-    for ele in ListTeams:
-        GamesPlayedPerTeam.append(0)
-        LocationCountPerTeam.append([1,1,1,1])
-    for index,x in enumerate(ListTeams):
-       for ind, team in enumerate(ListTeams):
-           if not(ind<=index):
-               PossibleGames.append([ListTeams[index],team])
-    x=1
-    def listToString(s):
-        str1 = ""
-        for ele in s:
-            str1 += (f"{ele} ")
-        return str1
-    def LocationToIndex(Location):
-        for indor,loc in enumerate(ListLocations):
-            if loc == Location:
-                return indor
-    from datetime import date
-    year = gameYear
-    for i in range(3):
-        x=1
-        for k in range(30+(i+5)%2):
-            dateasy = str(date(year,5+i,x).ctime())
-            listm = dateasy.split(" ")
-            if listm[0] == "Wed":
-                if str((date(year,5,x).ctime())).split(" ")[2] == '':
-                    ListWeeks.append(listToString(str((date(year,5+i,x).ctime())).split(" ")[1:4]))
-                else:
-                    ListWeeks.append(listToString(str((date(year,5+i,x).ctime())).split(" ")[1:3]))
-            x+=1
-        x=1
-    x=1
-    for k in range(31):
-            dateasy = str(date(year,8,x).ctime())
-            listm = dateasy.split(" ")
-            if listm[0] == "Wed":
-                if str((date(year,5,x).ctime())).split(" ")[2] == '':
-                    ListWeeks.append(listToString(str((date(year,8,x).ctime())).split(" ")[1:4]))
-                else:
-                    ListWeeks.append(listToString(str((date(year,8,x).ctime())).split(" ")[1:3]))
-            x+=1
-        
-    def TeamsInMatches(Matches):
-        teamsinmatches = []
-        for match in Matches:
-            teamsinmatches.append(match[0])
-            teamsinmatches.append(match[1])
-        return set(teamsinmatches)
-    def TeamToIndex(team):
-        for ind,t in enumerate(ListTeams):
-            if team == t:
-                return ind
-    for i in range(len(ListWeeks)*8):
-        PossibleSelection = []
-        WorsePossibleSelection = []
-        BadPossibleSelection = []
-        if i >= 4:
-            if i%4 == 0:
-                CurrGames = []
-            if i%8 == 0:
-                PrevGames = []
-            if (i+4) %8 == 0:
-                PrevGames.append(FGames[i-4])
-                PrevGames.append(FGames[i-3])
-                PrevGames.append(FGames[i-2])
-                PrevGames.append(FGames[i-1])
-        else:
-            for match in PossibleGames:
-                if match[0] not in TeamsInMatches(FGames) and match[1] not in TeamsInMatches(FGames):
-                    FGames.append(match)
-                    break
-        if i>=4:
-            for match in PossibleGames:
-                if (match[0] not in TeamsInMatches(PrevGames) and match[1] not in TeamsInMatches(PrevGames)) and (match[0] not in TeamsInMatches(CurrGames) and match[1] not in TeamsInMatches(CurrGames)) and (match not in FGames):
-                    PossibleSelection.append(match)
-            if len(PossibleSelection) == 0:
-                for match in PossibleGames:
-                    if (match[0] not in TeamsInMatches(PrevGames) and match[1] not in TeamsInMatches(PrevGames)) and (match[0] not in TeamsInMatches(CurrGames) and match[1] not in TeamsInMatches(CurrGames)):
-                        WorsePossibleSelection.append(match)
-            if len(WorsePossibleSelection) == 0:
-                for match in PossibleGames:
-                    if match[0] not in TeamsInMatches(CurrGames):
-                        BadPossibleSelection.append(match)
-            if len(PossibleSelection)>0:
-                Smallest = 100000
-                for  element in PossibleSelection:
-                    if GamesPlayedPerTeam[TeamToIndex(element[0])] + GamesPlayedPerTeam[TeamToIndex(element[1])] < Smallest:
-                        Smallest = GamesPlayedPerTeam[TeamToIndex(element[0])] + GamesPlayedPerTeam[TeamToIndex(element[1])]
-                        elebest = element
-                FGames.append(elebest)
-                GamesPlayedPerTeam[TeamToIndex(elebest[0])]+=1
-                GamesPlayedPerTeam[TeamToIndex(elebest[1])]+=1
-                CurrGames.append(elebest)
-            elif len(WorsePossibleSelection)>0:
-                Smallest = 100000
-                for  element in WorsePossibleSelection:
-                    if GamesPlayedPerTeam[TeamToIndex(element[0])] + GamesPlayedPerTeam[TeamToIndex(element[1])] < Smallest:
-                        Smallest = GamesPlayedPerTeam[TeamToIndex(element[0])] + GamesPlayedPerTeam[TeamToIndex(element[1])]
-                        elebest = element
-                FGames.append(elebest)
-                GamesPlayedPerTeam[TeamToIndex(elebest[0])]+=1
-                GamesPlayedPerTeam[TeamToIndex(elebest[1])]+=1
-                CurrGames.append(elebest)
-            else:
-                Smallest = 100000
-                for  element in BadPossibleSelection:
-                    if GamesPlayedPerTeam[TeamToIndex(element[0])] + GamesPlayedPerTeam[TeamToIndex(element[1])] < Smallest:
-                        Smallest = GamesPlayedPerTeam[TeamToIndex(element[0])] + GamesPlayedPerTeam[TeamToIndex(element[1])]
-                        elebest = element
-                FGames.append(elebest)
-                GamesPlayedPerTeam[TeamToIndex(elebest[0])]+=1
-                GamesPlayedPerTeam[TeamToIndex(elebest[1])]+=1
-                CurrGames.append(elebest)
-
-    DGames = 0
+    #List that stores the locations played per team to optimize location selection
+    LocationCountPerTeam = []
+    #List that stores the good options for matches
+    PossibleSelection = []
+    #List that stores the current games to avoid Simultanious games from the same team
+    CurrGames = []
+    #List that stores the scores generated by the location algorithm
+    ScoreList = []
+    #List for filtering out potential errors
+    ErrorList = []
+    #List that goes with ErrorList
+    Closed = []
+    #List that helps count duplicate matches
+    PlayedBefore = []
+    #List that helps make the debug info
+    debuglist = []
+    #Used to track double header games so that they can have the correct locations.
+    TrackList = []
+    #Used later to store a deepcopy of PossibleLocationIndicies in order to ensure double header games have the correct locations.
+    CPossibleLocationIndicies = []
+    #Stores all possible combinations of locations for each chunk of 4 matches.
     PossibleLocationIndicies = [
         [0,1,2,3],
         [0,1,3,2],
@@ -176,6 +91,57 @@ def IniFindMatches(i1,i2,TimeOne, TimeTwo,gameYear):
         [3,2,0,1],
         [3,2,1,0]
     ]
+    #Turns a list into a string
+    def listToString(s):
+        str1 = ""
+        for ele in s:
+            str1 += (f"{ele} ")
+        return str1
+    #Turns a location into its respective index
+    def LocationToIndex(Location):
+        for indor,loc in enumerate(ListLocations):
+            if loc == Location:
+                return indor
+    #Returns a list of teams given a list of matches
+    def TeamsInMatches(Matches):
+        teamsinmatches = []
+        for match in Matches:
+            teamsinmatches.append(match[0])
+            teamsinmatches.append(match[1])
+        return teamsinmatches
+    #Turns a team into its respective index
+    def TeamToIndex(team):
+        for ind,t in enumerate(ListTeams):
+            if team == t:
+                return ind
+    '''
+    This function takes a combination from the PossibleLocationIndicies list, the group of matches, as well as each team's location count.
+    It then uses the fact that any +1 in n1 or n2 or n3 or n4 while using n1*n2*n3*n4 (Location Counts) will make the largest number.
+    For instance, Given [2,5,4,3] location count:
+    Location One would result in:
+    2+1*5*4*3, 3*5*4*3 == 180
+
+    Location Two would result in:
+    2*5+1*4*3, 2*6*4*3 == 144
+
+    Location Three would result in:
+    2*5*4+1*3, 2*5*5*3 == 150
+
+    Location Four would result in:
+    2*5*4*3+1, 2*5*4*4 == 160
+
+    Given the numbers
+    L1 : 180
+    L2 : 144
+    L3 : 150
+    L4 : 160
+    we can find out that L1 would be the best option because it results in the largest product.
+    L4 would be the second best
+    L3 would be the third best
+    and L4 would be the worst.
+
+    Why do we need such a complicated system to solve for the best location when we can just look at which number is smallest? It is so that I can freely manipulate the score and add it together with other team's score. On top of this, it scales as the location become more spread. For an extreme example, [1,1,7,1] would either be 14 or 8. compare that to [4,4,4,5] where the difference can be from  384 or 400. In the more extreme case, the difference is just under +-6 which is around 40%. Compare that to the +-16 in the more reasonable case which is just 4%. as the difference in location count, the numbers become scaled up based on percentage. This makes wide gaps more heavily weighed. On top of this, a bad spread will automatically have a smaller score than a good one, and it will naturally choose the path that has the highest score. EG: 8 locations: [3,1,1,6,2] is 36, whereas [3,3,3,3] would be 81, which is over double the score.
+    '''
     def findscore(combination, inx,LocationCount):
         TotalScore = 0
         for k in range (4):
@@ -195,26 +161,145 @@ def IniFindMatches(i1,i2,TimeOne, TimeTwo,gameYear):
             TotalScore+=multT1
         return TotalScore
         LocationCount[TeamToIndex(FGames[inx][1])][combination[1]]
-    scorelist = []
+    for ele in ListTeams:
+        GamesPlayedPerTeam.append(0)
+        LocationCountPerTeam.append([1,1,1,1])
+    for index,x in enumerate(ListTeams):
+       for ind, team in enumerate(ListTeams):
+           if not(ind<=index):
+               PossibleGames.append([ListTeams[index],team])
+    x=1
+    #Using a calendar plugin, it can find the Wednesdays of May, June, July, and August.
+    from datetime import date
+    year = gameYear
+    for i in range(3):
+        x=1
+        for k in range(30+(i+5)%2):
+            dateasy = str(date(year,5+i,x).ctime())
+            listm = dateasy.split(" ")
+            if listm[0] == "Wed":
+                if str((date(year,5,x).ctime())).split(" ")[2] == '':
+                    ListWeeks.append(listToString(str((date(year,5+i,x).ctime())).split(" ")[1:4]))
+                else:
+                    ListWeeks.append(listToString(str((date(year,5+i,x).ctime())).split(" ")[1:3]))
+            x+=1
+        x=1
+    x=1
+    for k in range(31):
+            dateasy = str(date(year,8,x).ctime())
+            listm = dateasy.split(" ")
+            if listm[0] == "Wed":
+                if str((date(year,5,x).ctime())).split(" ")[2] == '':
+                    ListWeeks.append(listToString(str((date(year,8,x).ctime())).split(" ")[1:4]))
+                else:
+                    ListWeeks.append(listToString(str((date(year,8,x).ctime())).split(" ")[1:3]))
+            x+=1
+        
+    '''
+    Sorts and generates games based on this priority:
+    !!! No illegal matches (One team playing twice in one time)
+    !! No Double headers
+    ! No duplicate games
+    '''
+    for i in range(len(ListWeeks)*8):
+        PossibleSelection = []
+        if i >= 4:
+            if i%4 == 0:
+                CurrGames = []
+            if i%8 == 0:
+                PrevGames = []
+            if (i+4) %8 == 0:
+                PrevGames.append(FGames[i-4])
+                PrevGames.append(FGames[i-3])
+                PrevGames.append(FGames[i-2])
+                PrevGames.append(FGames[i-1])
+        else:
+            for match in PossibleGames:
+                if match[0] not in TeamsInMatches(FGames) and match[1] not in TeamsInMatches(FGames):
+                    FGames.append(match)
+                    break
+        if i>=4:
+            for match in PossibleGames:
+                if (match[0] not in TeamsInMatches(PrevGames) and match[1] not in TeamsInMatches(PrevGames)) and (match[0] not in TeamsInMatches(CurrGames) and match[1] not in TeamsInMatches(CurrGames)) and (match not in FGames):
+                    PossibleSelection.append(match)
+            if len(PossibleSelection) == 0:
+                for match in PossibleGames:
+                    if (match[0] not in TeamsInMatches(PrevGames) and match[1] not in TeamsInMatches(PrevGames)) and (match[0] not in TeamsInMatches(CurrGames) and match[1] not in TeamsInMatches(CurrGames)):
+                        PossibleSelection.append(match)
+            if len(PossibleSelection) == 0:
+                for match in PossibleGames:
+                    if (match[0] not in TeamsInMatches(CurrGames) and match[1] not in TeamsInMatches(CurrGames)):
+                        PossibleSelection.append(match)
+            smallest = 100000
+            for match in PossibleSelection:
+                if GamesPlayedPerTeam[TeamToIndex(match[0])] + GamesPlayedPerTeam[TeamToIndex(match[1])] <smallest:
+                    smallest = GamesPlayedPerTeam[TeamToIndex(match[0])] + GamesPlayedPerTeam[TeamToIndex(match[1])]
+                    bestmatch = match
+            FGames.append(bestmatch)
+            CurrGames.append(bestmatch)
+            GamesPlayedPerTeam[TeamToIndex(bestmatch[0])]+=1
+            GamesPlayedPerTeam[TeamToIndex(bestmatch[1])]+=1
+
+    DGames = 0
+    #Uses the score generator to find the best combination in the List of PossibleLocationIndicies
+    ScoreList = []
     for index, match in enumerate(FGames):
         if index%4 == 0:
-            scorelist = []
-            for combination in PossibleLocationIndicies:
-                scorelist.append(findscore(combination,index,LocationCountPerTeam))
-            larg = max(scorelist)
-            for indx,score in enumerate(scorelist):
-                if score == larg:
-                    indexbest = indx
-            for o in range(4):
-                ModList = deepcopy(FGames[index+o])
-                ModList.append(ListLocations[PossibleLocationIndicies[indexbest][o]])
-                FGames.pop(index+o)
-                FGames.insert(index+o,ModList)
-            
-            for f in range(4):
-                LocationCountPerTeam[TeamToIndex(FGames[index+f][0])][PossibleLocationIndicies[indexbest][f]]+=1
-                LocationCountPerTeam[TeamToIndex(FGames[index+f][1])][PossibleLocationIndicies[indexbest][f]]+=1
-    
+            c = 1
+            if (index+4)%8 == 0:
+                PGames = [FGames[index-1],FGames[index-2],FGames[index-3],FGames[index-4]]
+                for k in range(4):
+                    if FGames[index+k][0] in TeamsInMatches(PGames) or FGames[index+k][1] in TeamsInMatches(PGames):
+                        c=0
+            ScoreList = []
+            if c==0:
+                TrackList = []
+                for k in range(4):
+                    for i,teams in enumerate(PGames):
+                        if FGames[index+k][0] in teams or FGames[index+k][1] in teams:
+                            TrackList.append([k,LocationToIndex(PGames[i][2])])
+                CPossibleLocationIndicies = deepcopy(PossibleLocationIndicies)
+                #print(TrackList)
+
+                for condition in TrackList:
+                    for ia,ele in enumerate(CPossibleLocationIndicies):
+                        if ele[condition[0]]!= condition[1]:
+                            CPossibleLocationIndicies[ia] = [0,0,0,0]
+
+                for combination in CPossibleLocationIndicies:
+                    if combination != [0,0,0,0]:
+                        ScoreList.append(findscore(combination,index,LocationCountPerTeam))
+                    else:
+                        ScoreList.append(0)
+                larg = max(ScoreList)
+                for indx,score in enumerate(ScoreList):
+                    if score == larg:
+                        indexbest = indx
+                for o in range(4):
+                    ModList = deepcopy(FGames[index+o])
+                    ModList.append(ListLocations[PossibleLocationIndicies[indexbest][o]])
+                    FGames.pop(index+o)
+                    FGames.insert(index+o,ModList)
+                for f in range(4):
+                    LocationCountPerTeam[TeamToIndex(FGames[index+f][0])][PossibleLocationIndicies[indexbest][f]]+=1
+                    LocationCountPerTeam[TeamToIndex(FGames[index+f][1])][PossibleLocationIndicies[indexbest][f]]+=1
+
+            if c==1:
+                for combination in PossibleLocationIndicies:
+                    ScoreList.append(findscore(combination,index,LocationCountPerTeam))
+                larg = max(ScoreList)
+                for indx,score in enumerate(ScoreList):
+                    if score == larg:
+                        indexbest = indx
+                for o in range(4):
+                    ModList = deepcopy(FGames[index+o])
+                    ModList.append(ListLocations[PossibleLocationIndicies[indexbest][o]])
+                    FGames.pop(index+o)
+                    FGames.insert(index+o,ModList)
+                for f in range(4):
+                    LocationCountPerTeam[TeamToIndex(FGames[index+f][0])][PossibleLocationIndicies[indexbest][f]]+=1
+                    LocationCountPerTeam[TeamToIndex(FGames[index+f][1])][PossibleLocationIndicies[indexbest][f]]+=1
+
     ErrorList = []
     Closed = []
     for index,match in enumerate(FGames):
